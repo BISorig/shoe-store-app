@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<h1>Список товаров</h1>
+{% if user_role in ['Администратор', 'Менеджер'] %}
+<div id="search-block" class="search-card">
+    <h2>Фильтры поиска</h2>
+    <div class="search-filter">
+        <span>Название:</span><br>
+        <input type="text" id="name-search" placeholder="Введите название...">
+    </div>
+
+    <div class="search-filter">
+        <span>Категория:</span><br>
+        <input type="text" id="category-search" placeholder="Введите категорию...">
+    </div>
+
+    <div class="search-filter">
+        <span>Описание:</span><br>
+        <input type="text" id="description-search" placeholder="Введите описание...">
+    </div>
+
+    <div class="search-filter">
+        <span>Производитель:</span><br>
+        <input type="text" id="manufacturer-search" placeholder="Введите производителя...">
+    </div>
+    
+    <div class="search-filter">
+        <span>Поставщик:</span><br>
+        <select id="supplier-search">
+            <option value="all">Все поставщики</option>
+            {% for supplier in suppliers %}
+                <option value="{{ supplier.name }}">{{ supplier.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="search-filter">
+        <span>Количество:</span><br>
+        <select id="quantity-search">
+            <option value="desc">По убыванию</option>
+            <option value="asc">По возрастанию</option>
+        </select>
+    </div>
+</div>
+{% endif %}
+<button id="add-product-btn">Добавить товар</button>
+<div id="products">
+    {% for product in products %}
+    <div class="product-card 
+                {% if product.quantity == 0 %} out-of-stock {% endif %} 
+                {% if product.discount > 15 %} high-discount {% endif %}"
+                data-id="{{ product.id }}"
+                data-name="{{ product.name }}"
+                data-category="{{ product.category.id }}"
+                data-description="{{ product.description }}"
+                data-manufacturer="{{ product.manufacturer.id }}"
+                data-supplier="{{ product.supplier.id }}"
+                data-quantity="{{ product.quantity }}"
+                data-price="{{ product.price }}">
+
+        <img src="/static/images/products/{{ product.image_path }}" alt="Товар">
+        <div class="product-desc">
+            <p class="product-desc-text">{{ product.category.name }} | {{ product.name }}</p><br>
+            <p class="product-desc-text"><b>Описание:</b> {{ product.description }}</p><br>
+            <p class="product-desc-text"><b>Производитель:</b> {{ product.manufacturer.name }}</p><br>
+            <p class="product-desc-text"><b>Поставщик:</b> {{ product.supplier.name }}</p><br>
+            <p class="product-desc-text"><b>Количество:</b> {{ product.quantity }}</p><br>
+            
+                {%if product.discount > 0 %} 
+                    <p class="product-desc-text"><b>Цена: </b><span class="old-price">{{ product.price }}</span>
+                        <span class="new-price">{{ product.price - (product.price * product.discount / 100) }}</span> руб.</p><br>
+                {% else %}
+                    <p class="product-desc-text"><b>Цена:</b>{{ product.price }} руб.</p><br>
+                {% endif %}
+                
+        </div>
+
+        <div class="discount">-{{ product.discount }}%</div>
+
+        <div class="editing-btns">
+            <button class="edit-btn" data-id="{{ product.id }}">Редактировать</button>
+            <button class="delete-btn" data-id="{{ product.id }}">Удалить</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div id="modal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Редактирование товара</h2>
+        <div class="modal-field">
+            <span>Название:</span><br>
+            <input id="modal-name" required>
+        </div>
+        <div class="modal-field">
+            <span>Категория:</span><br>
+            <select id="modal-category">
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="modal-field">
+            <span>Описание:</span><br>
+            <input id="modal-description" required>
+        </div>
+        <div class="modal-field">
+            <span>Цена:</span><br>
+            <input id="modal-price" type="number" placeholder="Цена" required>
+        </div>
+        <div class="modal-field">
+            <span>Количество:</span><br>
+            <input id="modal-quantity" type="number" placeholder="Количество" required>
+        </div>
+        <div class="modal-field">
+            <span>Производитель:</span><br>
+            <select id="modal-manufacturer">
+                {% for manufacturer in manufacturers %}
+                    <option value="{{ manufacturer.id }}">{{ manufacturer.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="modal-field">
+            <span>Поставщик:</span><br>
+            <select id="modal-supplier">
+                {% for supplier in suppliers %}
+                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="modal-field">
+            <span>Изображение:</span><br>
+            <input id="modal-image" type="file">
+        </div>
+        <div class="modal-btns">
+            <button id="save-product-btn" class="hidden">Сохранить</button>
+            <button id="create-product-btn" class="hidden">Создать</button>
+            <button id="close-modal-btn">Закрыть</button>
+        </div>
+        
+    </div>
+</div>
+
+{% endblock %}

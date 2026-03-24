@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>MyShop - Авторизация</title>
+    <link rel="stylesheet" href="static/styles/login.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>MyShop</h1>
+    <div id="auth-block" class="card">
+        <div id="auth-btns">
+            <button id="login-show-btn">Авторизация</button>
+            <button id="reg-show-btn">Регистрация</button>
+            <button id="guest-btn">Войти как Гость</button>
+        </div>
+
+        <div id="login-form" class="auth-form">
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Пароль">
+            <button id="login-btn">Войти</button>
+        </div>
+
+        <div id="reg-form" class="hidden" class="auth-form">
+            <input type="email" id="reg-email" placeholder="Email">
+            <input type="password" id="reg-password" placeholder="Пароль">
+            <button id="register-btn">Зарегистрироваться</button>
+        </div>
+    </div>
+
+</div>
+
+<script type="module" src="static/scripts/ui/authUi.js"></script>
+</body>
+</html>
