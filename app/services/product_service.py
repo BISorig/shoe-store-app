@@ -1,6 +1,4 @@
-from app.models import Product
 from app.repositories.product_repository import ProductRepository
-from app.schemas.product_schema import ProductUpdate
 
 
 class ProductService:
@@ -17,3 +15,6 @@ class ProductService:
         if data["image_path"] is None:
             data["image_path"] = "picture.png"
         return self.repository.create_product(data)
+
+    def delete_product(self, product_id: int):
+        return self.repository.delete_product(product_id)
