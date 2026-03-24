@@ -7,11 +7,20 @@ from starlette.templating import Jinja2Templates
 from app.dependencies.get_current_user import get_current_user
 from app.dependencies.services_factory import get_products_service, get_suppliers_service, get_manufacturers_service, \
     get_category_service
+from app.exceptions.exceptions import NotEnoughRights
 from app.schemas.product_schema import ProductUpdate
 
 templates = Jinja2Templates(directory="app/templates")
 
 router = APIRouter(prefix="/products", tags=["products"])
+
+ADMIN_ROLE = "Администратор"
+MANAGER_ROLE = "Менеджер"
+
+
+def require_admin(user) -> None:
+    if user.role.name != ADMIN_ROLE:
+        raise NotEnoughRights()
 
 
 def save_product_image(image: UploadFile | None) -> str | None:
@@ -43,11 +52,11 @@ def get_products(request: Request,
                      "full_name": current_user.full_name,
                      "user_role": current_user.role.name}
 
-    if current_user.role.name in ["Администратор", "Менеджер"]:
+    if current_user.role.name in [ADMIN_ROLE, MANAGER_ROLE]:
         suppliers = suppliers_service.get_all_suppliers()
         template_dict["suppliers"] = suppliers
 
-    if current_user.role.name == "Администратор":
+    if current_user.role.name == ADMIN_ROLE:
         manufacturers = manufacturers_service.get_all_manufacturers()
         template_dict["manufacturers"] = manufacturers
 
@@ -77,7 +86,9 @@ def update_product(product_id: int,
                    price: float = Form(...),
                    quantity: int = Form(...),
                    image: UploadFile = File(None),
+                   current_user=Depends(get_current_user),
                    product_service = Depends(get_products_service)):
+    require_admin(current_user)
     image_path = save_product_image(image)
 
     product = ProductUpdate(name=name,
@@ -100,7 +111,9 @@ def create_product(name: str = Form(...),
                    quantity: int = Form(...),
                    discount: int = Form(0),
                    image: UploadFile = File(None),
+                   current_user=Depends(get_current_user),
                    product_service = Depends(get_products_service)):
+    require_admin(current_user)
     image_path = save_product_image(image)
 
     product_data = {
@@ -119,6 +132,8 @@ def create_product(name: str = Form(...),
 
 @router.delete("/{product_id}")
 def delete_product(product_id: int,
+                   current_user=Depends(get_current_user),
                    product_service = Depends(get_products_service)):
+    require_admin(current_user)
     product_service.delete_product(product_id)
     return {"message": "Product deleted"}
