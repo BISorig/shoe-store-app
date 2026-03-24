@@ -1,11 +1,8 @@
-import os.path
 import shutil
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
-from sqlalchemy.sql.functions import user
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
-from unicodedata import category
 
 from app.dependencies.get_current_user import get_current_user
 from app.dependencies.services_factory import get_products_service, get_suppliers_service, get_manufacturers_service, \
@@ -15,6 +12,19 @@ from app.schemas.product_schema import ProductUpdate
 templates = Jinja2Templates(directory="app/templates")
 
 router = APIRouter(prefix="/products", tags=["products"])
+
+
+def save_product_image(image: UploadFile | None) -> str | None:
+    if image is None or not image.filename:
+        return None
+
+    filename = image.filename
+    filepath = f"app/static/images/products/{filename}"
+
+    with open(filepath, "wb") as buffer:
+        shutil.copyfileobj(image.file, buffer)
+
+    return filename
 
 @router.get("/", response_class=HTMLResponse)
 def get_products(request: Request,
@@ -68,13 +78,7 @@ def update_product(product_id: int,
                    quantity: int = Form(...),
                    image: UploadFile = File(None),
                    product_service = Depends(get_products_service)):
-    if image:
-        filename = f"/static/images/{image.filename}"
-        with open(filename, "wb") as buffer:
-            shutil.copyfileobj(image.file, buffer)
-        image_path = image.filename
-    else:
-        image_path = None
+    image_path = save_product_image(image)
 
     product = ProductUpdate(name=name,
                             category_id=category_id,
@@ -94,11 +98,10 @@ def create_product(name: str = Form(...),
                    supplier_id: int = Form(...),
                    price: float = Form(...),
                    quantity: int = Form(...),
+                   discount: int = Form(0),
                    image: UploadFile = File(None),
                    product_service = Depends(get_products_service)):
-    filename = f"static/images/{image.filename}" if image else None
-    with open(filename, "wb") as buffer:
-        shutil.copyfileobj(image.file, buffer)
+    image_path = save_product_image(image)
 
     product_data = {
         "name": name,
@@ -108,6 +111,14 @@ def create_product(name: str = Form(...),
         "supplier_id": supplier_id,
         "price": price,
         "quantity": quantity,
-        "image_path": image.filename
+        "discount": discount,
+        "image_path": image_path
     }
     return product_service.create_product(product_data)
+
+
+@router.delete("/{product_id}")
+def delete_product(product_id: int,
+                   product_service = Depends(get_products_service)):
+    product_service.delete_product(product_id)
+    return {"message": "Product deleted"}
