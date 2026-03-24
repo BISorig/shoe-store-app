@@ -46,7 +46,9 @@
     </div>
 </div>
 {% endif %}
+{% if user_role in ['Администратор', 'Менеджер'] %}
 <button id="add-product-btn">Добавить товар</button>
+{% endif %}
 <div id="products">
     {% for product in products %}
     <div class="product-card 
@@ -54,10 +56,13 @@
                 {% if product.discount > 15 %} high-discount {% endif %}"
                 data-id="{{ product.id }}"
                 data-name="{{ product.name }}"
-                data-category="{{ product.category.id }}"
+                data-category-id="{{ product.category.id }}"
+                data-category-name="{{ product.category.name }}"
                 data-description="{{ product.description }}"
-                data-manufacturer="{{ product.manufacturer.id }}"
-                data-supplier="{{ product.supplier.id }}"
+                data-manufacturer-id="{{ product.manufacturer.id }}"
+                data-manufacturer-name="{{ product.manufacturer.name }}"
+                data-supplier-id="{{ product.supplier.id }}"
+                data-supplier-name="{{ product.supplier.name }}"
                 data-quantity="{{ product.quantity }}"
                 data-price="{{ product.price }}">
 
@@ -80,13 +85,16 @@
 
         <div class="discount">-{{ product.discount }}%</div>
 
+        {% if user_role in ['Администратор', 'Менеджер'] %}
         <div class="editing-btns">
             <button class="edit-btn" data-id="{{ product.id }}">Редактировать</button>
             <button class="delete-btn" data-id="{{ product.id }}">Удалить</button>
         </div>
+        {% endif %}
     </div>
     {% endfor %}
 </div>
+{% if user_role in ['Администратор', 'Менеджер'] %}
 <div id="modal" class="modal hidden">
     <div class="modal-content">
         <h2>Редактирование товара</h2>
@@ -142,5 +150,6 @@
         
     </div>
 </div>
+{% endif %}
 
 {% endblock %}
