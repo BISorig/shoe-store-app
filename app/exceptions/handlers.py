@@ -38,6 +38,12 @@ async def invalid_data_handler(request: Request, exc: InvalidEnteredDataError) -
         content={"message": "Operation is not allowed for current data state."},
     )
 
+async def invalid_data_handler(request: Request, exc: InvalidEnteredDataError) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={"message": "Operation is not allowed for current data state."}
+    )
+
 
 async def http_exception_handler(request: Request, exc: HTTPException):
     if exc.status_code == status.HTTP_401_UNAUTHORIZED:
