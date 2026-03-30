@@ -5,7 +5,11 @@ from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
 from app.dependencies.get_current_user import get_current_user
-from app.dependencies.services_factory import get_orders_service, get_pickup_points_service, get_user_service
+from app.dependencies.services_factory import (
+    get_orders_service,
+    get_pickup_points_service,
+    get_user_service,
+)
 from app.exceptions.exceptions import NotEnoughRights
 from app.schemas.order_schema import OrderCreate, OrderUpdate
 

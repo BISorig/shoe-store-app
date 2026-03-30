@@ -1,6 +1,5 @@
 from app.models import User
 from app.repositories.user_repository import UserRepository
-from app.schemas.user_schema import UserCreate
 
 
 class UserService:

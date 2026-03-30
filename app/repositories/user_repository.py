@@ -1,6 +1,6 @@
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from sqlalchemy import select
 
 from app.models import User
 
@@ -47,4 +47,3 @@ class UserRepository:
         self.db.commit()
         self.db.refresh(user)
         return user
-

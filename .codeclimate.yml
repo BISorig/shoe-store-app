@@ -1,0 +1,25 @@
+version: "2"
+checks:
+  argument-count:
+    enabled: true
+  file-lines:
+    enabled: true
+  method-count:
+    enabled: true
+  method-lines:
+    enabled: true
+plugins:
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+  markdownlint:
+    enabled: true
+  radon:
+    enabled: true
+  shellcheck:
+    enabled: true
+exclude_patterns:
+  - "app/static/images/**"
+  - "**/__pycache__/**"
+  - "*.pyc"

@@ -10,7 +10,7 @@ class ProductService:
 
     def update_product(self, data: dict, product_id: int):
         return self.repository.update_product(data, product_id)
-    
+
     def create_product(self, data: dict):
         if data["image_path"] is None:
             data["image_path"] = "picture.png"

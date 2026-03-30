@@ -1,5 +1,7 @@
 # Shoe Store App
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/YOUR_BADGE_ID/maintainability)](https://codeclimate.com/github/YOUR_ORG/YOUR_REPO/maintainability)
+
 Веб-приложение для компании по продаже обуви на **FastAPI + SQLAlchemy**.
 
 ## Что реализовано
@@ -105,3 +107,50 @@ uvicorn app.main:app --reload
 - `app/templates/` — HTML шаблоны;
 - `app/static/` — JS/CSS/изображения.
 
+---
+
+## Линтеры и проверка качества кода
+
+### Python
+
+Используются:
+
+- **Ruff** — статический анализ и проверка потенциальных ошибок;
+- **Black** — единый стиль форматирования.
+
+Запуск:
+
+```bash
+ruff check app
+black --check app
+```
+
+### JavaScript
+
+Используется:
+
+- **ESLint** для `app/static/scripts`.
+
+Запуск:
+
+```bash
+npm install
+npm run lint:js
+```
+
+### CI
+
+Для автоматической проверки добавлен workflow:
+
+- `.github/workflows/lint.yml`
+
+### CodeClimate
+
+Добавлен конфиг `.codeclimate.yml` для интеграции анализа качества кода.  
+Чтобы значок Maintainability работал, замените в README:
+
+- `YOUR_BADGE_ID`
+- `YOUR_ORG`
+- `YOUR_REPO`
+
+на значения вашего репозитория в CodeClimate.

@@ -10,4 +10,3 @@ class PickupPoint(Base):
     address: Mapped[str] = mapped_column()
 
     orders = relationship("Order", back_populates="pickup_point")
-
