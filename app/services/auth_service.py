@@ -1,9 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 
-from app.core.security import hash_password, verify_password, create_access_token
-from app.schemas.user_schema import UserCreate
-from app.exceptions.exceptions import UserAlreadyExistsError
-from app.exceptions.exceptions import InvalidCredentialsError
+from app.core.security import create_access_token
+from app.exceptions.exceptions import InvalidCredentialsError, UserAlreadyExistsError
 from app.services.user_service import UserService
 
 
@@ -26,4 +24,3 @@ class AuthService:
         access_token = create_access_token({"sub": user.email})
 
         return user, access_token
-

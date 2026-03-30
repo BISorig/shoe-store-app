@@ -1,0 +1,10 @@
+{
+  "name": "shoe-store-app",
+  "private": true,
+  "scripts": {
+    "lint:js": "eslint app/static/scripts --ext .js"
+  },
+  "devDependencies": {
+    "eslint": "^9.22.0"
+  }
+}

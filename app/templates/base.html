@@ -15,6 +15,11 @@
 
     <div class="user-block">
         <span class="user-name">{{ full_name }} ({{ user_role }})</span>
+        <a href="/products">Товары</a>
+        {% if user_role in ['Администратор', 'Менеджер'] %}
+        <a href="/orders">Заказы</a>
+        {% endif %}
+        <button type="button" onclick="history.back()">Назад</button>
         <button id="logout-btn" class="logout-btn">Выйти</button>
     </div>
     </header>
@@ -23,4 +28,5 @@
 
 </body>
 <script type="module" src="/static/scripts/ui/productsPageUi.js"></script>
+<script type="module" src="/static/scripts/ui/ordersPageUi.js"></script>
 </html>

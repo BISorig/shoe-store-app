@@ -29,3 +29,18 @@ export async function createProductRequest(formData) {
         throw error;
     }
 }
+
+export async function deleteProductRequest(productId) {
+    try {
+        const response = await fetch(`/products/${productId}`, {
+            method: "DELETE"
+        });
+        if (!response.ok) {
+            throw new Error("Failed to delete product");
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        throw error;
+    }
+}

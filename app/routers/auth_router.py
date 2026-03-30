@@ -1,20 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from fastapi.params import Cookie
 from fastapi.security import OAuth2PasswordRequestForm
-from starlette.responses import FileResponse
-
 from starlette.status import HTTP_409_CONFLICT
 from starlette.templating import Jinja2Templates
 
 from app.dependencies.get_current_user import get_current_user
+from app.dependencies.services_factory import get_auth_service
+from app.exceptions.exceptions import UserAlreadyExistsError
 from app.schemas.user_schema import UserCreate
 from app.services.auth_service import AuthService
-from app.exceptions.exceptions import UserAlreadyExistsError
-from app.dependencies.services_factory import get_auth_service
 
 templates = Jinja2Templates(directory="app/templates")
 
 router = APIRouter()
+
 
 @router.post("/register")
 def register(user: UserCreate, service: AuthService = Depends(get_auth_service)):
@@ -23,15 +21,18 @@ def register(user: UserCreate, service: AuthService = Depends(get_auth_service))
     except UserAlreadyExistsError:
         raise HTTPException(status_code=HTTP_409_CONFLICT, detail="User already exists")
 
+
 @router.get("/login")
 def load_login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
+
 @router.post("/login")
-def login(response: Response,
-          form_data: OAuth2PasswordRequestForm = Depends(),
-          auth_service: AuthService = Depends(get_auth_service)
-          ):
+def login(
+    response: Response,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    auth_service: AuthService = Depends(get_auth_service),
+):
     user, access_token = auth_service.login(form_data)
 
     response.set_cookie(key="access_token", value=access_token, httponly=True)

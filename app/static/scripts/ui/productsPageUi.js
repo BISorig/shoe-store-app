@@ -1,5 +1,5 @@
 import { logoutRequest } from "../api/authApi.js";
-import { updateProductRequest, createProductRequest} from "../api/productsApi.js";
+import { updateProductRequest, createProductRequest, deleteProductRequest } from "../api/productsApi.js";
 
 const logoutBtn = document.getElementById("logout-btn");
 const nameSearchInput = document.getElementById("name-search");
@@ -15,32 +15,31 @@ const saveModalBtn = document.getElementById("save-product-btn");
 const createProductBtn = document.getElementById("add-product-btn");
 const createModalBtn = document.getElementById("create-product-btn");
 
-nameSearchInput.addEventListener("input", applyFilters);
-categorySearchInput.addEventListener("input", applyFilters);
-manufacturerSearchInput.addEventListener("input", applyFilters);
-supplierSearchInput.addEventListener("input", applyFilters);
-descriptionSearchInput.addEventListener("input", applyFilters);
-quantitySearchInput.addEventListener("change", applyFilters);
-saveModalBtn.addEventListener("click", saveProductChanges);
-createModalBtn.addEventListener("click", createProduct);
-createProductBtn.addEventListener("click", () => {
+nameSearchInput?.addEventListener("input", applyFilters);
+categorySearchInput?.addEventListener("input", applyFilters);
+manufacturerSearchInput?.addEventListener("input", applyFilters);
+supplierSearchInput?.addEventListener("input", applyFilters);
+descriptionSearchInput?.addEventListener("input", applyFilters);
+quantitySearchInput?.addEventListener("change", applyFilters);
+saveModalBtn?.addEventListener("click", saveProductChanges);
+createModalBtn?.addEventListener("click", createProduct);
+createProductBtn?.addEventListener("click", () => {
     modal.classList.remove("hidden");
     saveModalBtn.classList.add("hidden");
     createModalBtn.classList.remove("hidden");
 });
 let currentProductId = null;
 
-pruductsContainer.addEventListener("click", (e) => {
+pruductsContainer?.addEventListener("click", async (e) => {
     if (e.target.classList.contains("edit-btn")) {
         const product = e.target.closest(".product-card");
-        console.log(product.dataset.name);
         currentProductId = product.dataset.id;
 
         document.getElementById("modal-name").value = product.dataset.name;
-        document.getElementById("modal-category").value = product.dataset.category;
+        document.getElementById("modal-category").value = product.dataset.categoryId;
         document.getElementById("modal-description").value = product.dataset.description;
-        document.getElementById("modal-manufacturer").value = product.dataset.manufacturer;
-        document.getElementById("modal-supplier").value = product.dataset.supplier;
+        document.getElementById("modal-manufacturer").value = product.dataset.manufacturerId;
+        document.getElementById("modal-supplier").value = product.dataset.supplierId;
         document.getElementById("modal-price").value = product.dataset.price;
         document.getElementById("modal-quantity").value = product.dataset.quantity;
 
@@ -48,13 +47,25 @@ pruductsContainer.addEventListener("click", (e) => {
         createModalBtn.classList.add("hidden");
         saveModalBtn.classList.remove("hidden");
     }
+
+    if (e.target.classList.contains("delete-btn")) {
+        const product = e.target.closest(".product-card");
+        const shouldDelete = confirm(`Удалить товар "${product.dataset.name}"?`);
+
+        if (!shouldDelete) {
+            return;
+        }
+
+        await deleteProductRequest(product.dataset.id);
+        window.location.reload();
+    }
 });
 
-closeModalBtn.addEventListener("click", () => {
+closeModalBtn?.addEventListener("click", () => {
     modal.classList.add("hidden");
 });
 
-logoutBtn.addEventListener("click", logoutUi);
+logoutBtn?.addEventListener("click", logoutUi);
 
 const products = Array.from(document.querySelectorAll(".product-card"));
 
@@ -66,6 +77,10 @@ export async function logoutUi() {
 }
 
 async function applyFilters() {
+    if (!nameSearchInput || !categorySearchInput || !manufacturerSearchInput || !supplierSearchInput || !descriptionSearchInput || !quantitySearchInput) {
+        return;
+    }
+
     const name = nameSearchInput.value.toLowerCase();
     const category = categorySearchInput.value.toLowerCase();
     const manufacturer = manufacturerSearchInput.value.toLowerCase();
@@ -78,15 +93,15 @@ async function applyFilters() {
     products.forEach(p => {
         
         const pName = p.dataset.name.toLowerCase();
-        const pCategory = p.dataset.category.toLowerCase();
+        const pCategory = p.dataset.categoryName.toLowerCase();
         const pDescription = p.dataset.description.toLowerCase();
-        const pManufacturer = p.dataset.manufacturer.toLowerCase();
+        const pManufacturer = p.dataset.manufacturerName.toLowerCase();
         const match =
             (!name || pName.includes(name)) &&
             (!description || pDescription.includes(description)) &&
             (!manufacturer || pManufacturer.includes(manufacturer)) &&
             (!category || pCategory.includes(category)) &&
-            (supplier === "all" || p.dataset.supplier.toLowerCase() === supplier);
+            (supplier === "all" || p.dataset.supplierName.toLowerCase() === supplier);
 
         p.style.display = match ? "grid" : "none";
     });
@@ -111,13 +126,16 @@ async function saveProductChanges() {
         manufacturer_id: document.getElementById("modal-manufacturer").value,
         supplier_id: document.getElementById("modal-supplier").value,
         price: document.getElementById("modal-price").value,
-        quantity: document.getElementById("modal-quantity").value
+        quantity: document.getElementById("modal-quantity").value,
+        image: document.getElementById("modal-image").files[0]
     };
     const formData = new FormData();
     for (const key in updatedData) {
-        formData.append(key, updatedData[key]);
+        if (updatedData[key] !== undefined && updatedData[key] !== null) {
+            formData.append(key, updatedData[key]);
+        }
     }
-    updateProductRequest(currentProductId, formData)
+    await updateProductRequest(currentProductId, formData);
     window.location.reload();
 }
 
@@ -134,9 +152,10 @@ async function createProduct() {
     };
     const formData = new FormData();
     for (const key in newData) {
-        formData.append(key, newData[key]);
+        if (newData[key] !== undefined && newData[key] !== null) {
+            formData.append(key, newData[key]);
+        }
     }
-    createProductRequest(formData);
+    await createProductRequest(formData);
     window.location.reload();
 }
-

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Заказы{% endblock %}
+
+{% block content %}
+<h1>Список заказов</h1>
+
+{% if user_role == 'Администратор' %}
+<button id="add-order-btn">Добавить заказ</button>
+{% endif %}
+
+<table id="orders-table" class="orders-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Артикул</th>
+            <th>Статус</th>
+            <th>Пункт выдачи</th>
+            <th>Дата заказа</th>
+            <th>Дата выдачи</th>
+            <th>Клиент</th>
+            <th>Код получения</th>
+            {% if user_role == 'Администратор' %}<th>Действия</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+        <tr class="order-row"
+            data-id="{{ order.id }}"
+            data-article="{{ order.article }}"
+            data-status="{{ order.status }}"
+            data-pickup-point-id="{{ order.pickup_point_id }}"
+            data-order-date="{{ order.order_date.strftime('%Y-%m-%dT%H:%M') }}"
+            data-delivery-date="{{ order.delivery_date.strftime('%Y-%m-%dT%H:%M') }}"
+            data-user-id="{{ order.user_id }}"
+            data-receipt-code="{{ order.receipt_code }}">
+            <td>{{ order.id }}</td>
+            <td>{{ order.article }}</td>
+            <td>{{ order.status }}</td>
+            <td>{{ order.pickup_point.address }}</td>
+            <td>{{ order.order_date }}</td>
+            <td>{{ order.delivery_date }}</td>
+            <td>{{ order.user.full_name }}</td>
+            <td>{{ order.receipt_code }}</td>
+            {% if user_role == 'Администратор' %}
+            <td>
+                <button class="edit-order-btn">Редактировать</button>
+                <button class="delete-order-btn">Удалить</button>
+            </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if user_role == 'Администратор' %}
+<div id="order-modal" class="modal hidden">
+    <div class="modal-content">
+        <h2 id="order-modal-title">Заказ</h2>
+        <div class="modal-field">
+            <span>ID:</span><br>
+            <input id="order-id" readonly>
+        </div>
+        <div class="modal-field">
+            <span>Артикул:</span><br>
+            <input id="order-article" required>
+        </div>
+        <div class="modal-field">
+            <span>Статус:</span><br>
+            <select id="order-status">
+                <option value="Создан">Создан</option>
+                <option value="В обработке">В обработке</option>
+                <option value="В пути">В пути</option>
+                <option value="Готов к выдаче">Готов к выдаче</option>
+                <option value="Выдан">Выдан</option>
+            </select>
+        </div>
+        <div class="modal-field">
+            <span>Пункт выдачи:</span><br>
+            <select id="order-pickup-point">
+                {% for pickup_point in pickup_points %}
+                    <option value="{{ pickup_point.id }}">{{ pickup_point.address }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="modal-field">
+            <span>Дата заказа:</span><br>
+            <input id="order-order-date" type="datetime-local" required>
+        </div>
+        <div class="modal-field">
+            <span>Дата выдачи:</span><br>
+            <input id="order-delivery-date" type="datetime-local" required>
+        </div>
+        <div class="modal-field">
+            <span>Клиент:</span><br>
+            <select id="order-user">
+                {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.full_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="modal-field">
+            <span>Код получения:</span><br>
+            <input id="order-receipt-code" type="number" required>
+        </div>
+        <div class="modal-btns">
+            <button id="save-order-btn" class="hidden">Сохранить</button>
+            <button id="create-order-btn" class="hidden">Создать</button>
+            <button id="close-order-modal-btn">Закрыть</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
